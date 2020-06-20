@@ -1,0 +1,10 @@
+[development]
+CLONE_PATH="/tmp/"
+TELEGRAM_BOT_KEY="set me up!"
+
+  [[development.REPOS]]
+  Name="Test Repo"
+  GitUrl="Some URL"
+  Bucket="testrepo"
+  TelegramChatId=1234
+  AnsibleDeployer="http://set.me.up"
