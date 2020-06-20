@@ -1,6 +1,8 @@
 [development]
 CLONE_PATH="/tmp/"
 TELEGRAM_BOT_KEY="set me up!"
+DOCKERFILES.NPM="Dockerfile-npm"
+DOCKERFILES.PYTHON="Dockerfile-python"
 
   [[development.REPOS]]
   Name="Test Repo"

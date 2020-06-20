@@ -15,14 +15,16 @@ setup(name='builder',
                 ],
             },
         install_requires=[
-            'Flask==1.1.1',
             'Flask-RESTful==0.3.8',
+            'Flask==1.1.1',
+            'boto3==1.14.7',
+            'docker==4.2.1',
+            'dynaconf==2.2.3',
+            'gitpython==3.1.3',
+            'requests==2.24.0',
             'waitress==1.4.3',
-            'dynaconf',
-            'requests',
-            'gitpython',
             ],
         extras_require={
-            'dev':
+            'build':
             ['shiv==0.1.2']
             })

@@ -1,6 +1,6 @@
 from builder import settings
 from builder.s3 import UploadError
-from builder.docker import BuildError
+from builder.executor import BuildError
 from builder.deployment import DeployError
 from builder.repo import Repo, Subproject
 
@@ -16,7 +16,7 @@ def work(repo, ref):
         for subproject in subprojects:
             artifacts = subproject.build()
             for artifact in artifacts:
-                artifact.upload_and_delete_locally()
+                repo.upload_artifact(ref, subproject, artifact)
         repo.trigger_deployment()
         repo.notify(f'Building {repo.name} succeeded')
     except BuildError as e:

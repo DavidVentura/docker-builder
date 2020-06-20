@@ -2,9 +2,10 @@ import json
 import shutil
 
 from builder import Ref, Url, settings
-from builder.notifications import Telegram, Notifier
-from builder.docker import Artifact, BuildMode, run_build
 from builder.deployment import Deployer, RemoteAnsibleDeployer
+from builder.executor import Artifact, BuildMode, run_build
+from builder.notifications import Telegram, Notifier
+from builder.s3 import upload_blob
 
 from dataclasses import dataclass
 from typing import List, Optional
@@ -42,7 +43,7 @@ class Repo:
         pass
 
     def fetch_at(self, ref: Ref) -> Path:
-        # FIXME: acquire lock
+        # FIXME: acquire lock in enter/exit? repo-ref should be uniq at any given time
         path = Path(settings.CLONE_PATH) / self.name / ref
         shutil.rmtree(path)
         r = git.Repo.clone_from(self.repo, path)
@@ -52,6 +53,11 @@ class Repo:
     def notify(self, msg):
         self.notifier.notify(msg)
 
+    def upload_artifact(self, ref: str, subproject: 'Subproject', artifact: Artifact):
+        # FIXME this doesn't feel like it belongs in repo.. but it also does not belong anywhere else
+        print(f"Now I'd upload this to s3://{self.bucket}/")
+        key = f'{ref}/{subproject.name}/{artifact.key}'
+        upload_blob(artifact.data, self.bucket, key)
 
 @dataclass
 class Subproject:
