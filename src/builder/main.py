@@ -41,24 +41,36 @@ def build_on_hook(hook_data: HookData):
     if len(hook_data.commits):
         logger.info(f'Commits in this build:')
         for commit in hook_data.commits:
-            logger.info(commit)
+            logger.info(f'{commit.timestamp} - {commit.ref} - {commit.msg}')
 
     try:
+        logger.info(f'Fetching repo at <{ref}>')
         repo_dst = repo.fetch_at(ref)
         subprojects = Subproject.parse_from_config(repo_dst / 'build.json')
         for subproject in subprojects:
+            logger.info(f'Found subproject: {subproject}')
             artifacts = subproject.build()
             for artifact in artifacts:
                 repo.upload_artifact(ref, subproject, artifact)
         repo.trigger_deployment(ref)
     except BuildError as e:
-        repo.notify(f'Failure building {repo.name}: {e}')
+        error = f'Failure building {repo.name}'
+        logger.error(error)
+        logger.error(e)
+        repo.notify(error)
         return
     except UploadError as e:
-        repo.notify(f'Failure uploading {repo.name}: {e}')
+        error = f'Failure uploading {repo.name}'
+        logger.error(error)
+        logger.error(e)
+        repo.notify(error)
         return
     except DeployError as e:
-        repo.notify(f'Failure deploying {repo.name}: {e}')
+        error = f'Failure deploying {repo.name}'
+        logger.error(error)
+        logger.error(e)
+        repo.notify(error)
         return
 
+    logger.info(f'Building {repo.name} succeeded')
     repo.notify(f'Building {repo.name} succeeded')
