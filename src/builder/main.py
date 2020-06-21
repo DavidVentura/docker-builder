@@ -1,11 +1,15 @@
+import logging
+
 from builder import settings
-from builder.s3 import UploadError
+from builder.s3 import UploadError, ensure_buckets
 from builder.executor import BuildError
 from builder.deployment import DeployError
 from builder.repo import Repo, Subproject
 
 import json
 
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger('Main')
 
 def work(repo, ref):
     try:
@@ -17,7 +21,7 @@ def work(repo, ref):
             artifacts = subproject.build()
             for artifact in artifacts:
                 repo.upload_artifact(ref, subproject, artifact)
-        repo.trigger_deployment()
+        repo.trigger_deployment(ref)
         repo.notify(f'Building {repo.name} succeeded')
     except BuildError as e:
         repo.notify(f'Failure building {repo.name}: {e}')
@@ -27,9 +31,9 @@ def work(repo, ref):
         repo.notify(f'Failure deploying {repo.name}: {e}')
 
 
-for r in settings.REPOS:
-    repo = Repo.from_config(r)
-    print(repo)
+repos = [Repo.from_config(r) for r in settings.REPOS]
+ensure_buckets([repo.bucket for repo in repos])
+for repo in repos:
     if repo.name == 'Test Repo':
         print(repo)
         work(repo, 'master')

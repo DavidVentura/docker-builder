@@ -1,4 +1,5 @@
 import json
+import logging
 import shutil
 
 from builder import Ref, Url, settings
@@ -12,6 +13,8 @@ from typing import List, Optional
 from pathlib import Path
 
 import git
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Repo:
@@ -39,8 +42,8 @@ class Repo:
                 notifier=n,
                 deployer=d)
 
-    def trigger_deployment(self):
-        pass
+    def trigger_deployment(self, ref: Ref):
+        self.deployer.deploy(self.name, ref)
 
     def fetch_at(self, ref: Ref) -> Path:
         # FIXME: acquire lock in enter/exit? repo-ref should be uniq at any given time
@@ -55,7 +58,7 @@ class Repo:
 
     def upload_artifact(self, ref: str, subproject: 'Subproject', artifact: Artifact):
         # FIXME this doesn't feel like it belongs in repo.. but it also does not belong anywhere else
-        print(f"Now I'd upload this to s3://{self.bucket}/")
+        logger.info(f"Uploading {artifact.key} to s3://{self.bucket}/")
         key = f'{ref}/{subproject.name}/{artifact.key}'
         upload_blob(artifact.data, self.bucket, key)
 

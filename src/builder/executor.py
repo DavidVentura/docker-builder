@@ -1,5 +1,8 @@
 import enum
 import io
+import logging
+import os
+import shutil
 import tarfile
 import uuid
 
@@ -7,41 +10,47 @@ import docker
 
 from builder import Ref
 
-from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, NamedTuple
 
 from dynaconf import settings
+
+logger = logging.getLogger('Executor')
 
 class BuildMode(enum.Enum):
     NPM = 'npm'
     PYTHON = 'python'
+    CUSTOM = 'custom'
     DEFAULT = 'npm'
 
 class BuildError(Exception):
     pass
 
-@dataclass
-class Artifact:
+class Artifact(NamedTuple):
     data: bytes
     key: str
 
 
-def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[BuildMode] = None) -> List[Artifact]:
-    client = docker.from_env()
+def buildmode_to_dockerfile(build_mode: Optional[BuildMode] = None) -> Optional[Path]:
+    if build_mode == BuildMode.CUSTOM:
+        return None
+    if build_mode is None:
+        return settings.DOCKERFILES.get(BuildMode.DEFAULT.name)
 
-    if build_mode:
-        dockerfile = settings.DOCKERFILES.get(build_mode.name)
-    else:
-        dockerfile = settings.DOCKERFILES.get(BuildMode.DEFAULT.name)
+    if build_mode.name not in settings.DOCKERFILES:
+        raise BuildError(f'Requested build mode `{buld_mode}` is not configured in settings')
+
+    return settings.DOCKERFILES[build_mode.name]
+
+
+def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[BuildMode] = None) -> List[Artifact]:
+    dockerfile = buildmode_to_dockerfile(build_mode)
+    if dockerfile:
+        shutil.copyfile(dockerfile, path / 'Dockerfile')
 
     tag = uuid.uuid4()
-    print(path)
-    import shutil
-    import os
-    shutil.copyfile(dockerfile, path / 'Dockerfile')
-
     cli = docker.APIClient()
+    client = docker.from_env()
     image_id = None
     try:
         for stream_obj in cli.build(path=str(path), tag=tag, rm=True, decode=True):
@@ -73,10 +82,20 @@ def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[Build
         buf = io.BytesIO()
         for chunk in tarball:
             buf.write(chunk)
+
         buf.seek(0, os.SEEK_SET)  # seek_set == beginning of file
         _tarfile = tarfile.open(fileobj=buf)  # tarfilne needs .tell(); docker gives a generator
-        resulting_blob = _tarfile.next().tobuf()
-        assert _tarfile.next() is None, "There were multiple files in the docker copy. What?"
+        members = _tarfile.getmembers()
+        
+        if len(members) == 1:
+            logger.info('Unpacking single-item tar file')
+            member = _tarfile.getmember(stat['name'])
+            resulting_blob = _tarfile.extractfile(member)
+        else:
+            logger.info('The artifact was a directory - returning as is')
+            buf.seek(0, os.SEEK_SET)  # seek_set == beginning of file
+            resulting_blob = buf
+
         resulting_artifacts.append(Artifact(data=resulting_blob, key=artifact_path))
 
     container.remove(force=True)

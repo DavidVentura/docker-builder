@@ -1,8 +1,12 @@
 [development]
 CLONE_PATH="/tmp/"
 TELEGRAM_BOT_KEY="set me up!"
+S3_PROFILE='ci'
+S3_ENDPOINT='http://localhost:9000'
 DOCKERFILES.NPM="Dockerfile-npm"
 DOCKERFILES.PYTHON="Dockerfile-python"
+ANSIBLE_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}'
+ANSIBLE_DEPLOYER_SECRET='some secret'
 
   [[development.REPOS]]
   Name="Test Repo"
