@@ -3,9 +3,9 @@ import logging
 import shutil
 
 from builder import Ref, Url, settings
-from builder.deployment import Deployer, RemoteAnsibleDeployer
+from builder.deployment import Deployer, RESTDeployer, NullDeployer
 from builder.executor import Artifact, BuildMode, run_build
-from builder.notifications import Telegram, Notifier
+from builder.notifications import Telegram, Notifier, NullNotifier
 from builder.s3 import upload_blob
 
 from dataclasses import dataclass
@@ -26,21 +26,26 @@ class Repo:
 
     @staticmethod
     def from_config(config):
-        if 'TelegramChatId' in config:
-            n = Telegram(chat_id=config['TelegramChatId'])
-        else:
-            raise NotImplementedError('Only telegram notifier has been implemented')
+        notifier = NullNotifier()
+        deployer = NullDeployer()
+
+        if 'Notifier' in config:
+            if config['Notifier'] == 'Telegram':
+                notifier = Telegram(chat_id=config['TelegramChatId'])
+            else:
+                raise NotImplementedError('Only Telegram notifier has been implemented')
         
-        if 'AnsibleDeployer' in config:
-            d = RemoteAnsibleDeployer(url=config['AnsibleDeployer'])
-        else:
-            raise NotImplementedError('Only Ansible Deployer has been implemented')
+        if 'Deployer' in config:
+            if config['Deployer'] == 'REST':
+                deployer = RESTDeployer(url=config.get('REST_DEPLOYER_URL', settings.REST_DEPLOYER_URL))
+            else:
+                raise NotImplementedError('Only REST Deployer has been implemented')
 
         return Repo(name=config['Name'],
                 repo=config['GitUrl'],
                 bucket=config['Bucket'],
-                notifier=n,
-                deployer=d)
+                notifier=notifier,
+                deployer=deployer)
 
     def trigger_deployment(self, ref: Ref):
         self.deployer.deploy(self.name, ref)

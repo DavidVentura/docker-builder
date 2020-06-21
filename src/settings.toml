@@ -5,12 +5,14 @@ S3_PROFILE='ci'
 S3_ENDPOINT='http://localhost:9000'
 DOCKERFILES.NPM="Dockerfile-npm"
 DOCKERFILES.PYTHON="Dockerfile-python"
-ANSIBLE_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}'
-ANSIBLE_DEPLOYER_SECRET='some secret'
+REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}'
+REST_DEPLOYER_SECRET='some secret'
 
   [[development.REPOS]]
   Name="Test Repo"
   GitUrl="Some URL"
   Bucket="testrepo"
   TelegramChatId=1234
-  AnsibleDeployer="http://set.me.up"
+  Notifier="Telegram"
+  Deployer="REST"
+  REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}'

@@ -18,13 +18,13 @@ class Deployer:
         raise NotImplementedError
 
 
-class RemoteAnsibleDeployer(Deployer, NamedTuple):
+class RESTDeployer(Deployer, NamedTuple):
     url: Url
 
     def deploy(self, repo_name: str, ref: str):
         logger.info(f'Deploying {repo_name}@{ref}')
-        url = settings.ANSIBLE_DEPLOYER_URL.format(repo=repo_name, ref=ref)
-        payload = {'secret': settings.ANSIBLE_DEPLOYER_SECRET}
+        url = settings.REST_DEPLOYER_URL.format(repo=repo_name, ref=ref)
+        payload = {'secret': settings.REST_DEPLOYER_SECRET}
         r = requests.post(url, json=payload)
         try:
             r.raise_for_status()
@@ -34,3 +34,8 @@ class RemoteAnsibleDeployer(Deployer, NamedTuple):
             raise DeployError(e)
 
         logger.info(f'Deploying {repo_name}@{ref} successful!')
+
+
+class NullDeployer(Deployer, NamedTuple):
+    def deploy(self):
+        logger.info('NullDeployer asked to deploy... doing nothing')
