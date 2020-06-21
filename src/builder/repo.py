@@ -53,7 +53,8 @@ class Repo:
     def fetch_at(self, ref: Ref) -> Path:
         # FIXME: acquire lock in enter/exit? repo-ref should be uniq at any given time
         path = Path(settings.CLONE_PATH) / self.name / ref
-        shutil.rmtree(path)
+        shutil.rmtree(path, ignore_errors=True)
+        path.mkdir(parents=True, exist_ok=True)
         r = git.Repo.clone_from(self.repo_url, path)
         r.head.reference = ref
         return path
