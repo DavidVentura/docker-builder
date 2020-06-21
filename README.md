@@ -110,7 +110,7 @@ way:
 * Files will be uploaded as they are
 
 
-The upload format is `{Bucket}/{repo}/{subproject}/{ref}/{artifact}` which means that if you configure your webhooks
+The upload format is `{Bucket}/{subproject}/{ref}/{artifact}` which means that if you configure your webhooks
 to trigger on push, and you only push directly to `master`, you'll only ever have **one** artifact - the latest master.
 
 If you use feature branches or release tags, those will be stored permanently.

@@ -63,9 +63,9 @@ class Repo:
 
     def upload_artifact(self, ref: str, subproject: 'Subproject', artifact: Artifact):
         # FIXME this doesn't feel like it belongs in repo.. but it also does not belong anywhere else
-        logger.info(f"Uploading {artifact.key} to s3://{self.bucket}/")
-        key = f'{ref}/{subproject.name}/{artifact.key}'
-        upload_blob(artifact.data, self.bucket, key)
+        key = f'{subproject.name}/{ref}/{artifact.key}'
+        logger.info(f"Uploading {artifact.key} to s3://{self.bucket}/{key}")
+        upload_blob(blob=artifact.data, bucket=self.bucket, key=key)
 
 @dataclass
 class Subproject:
