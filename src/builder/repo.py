@@ -84,9 +84,11 @@ class Subproject:
             for sp in config['subprojects']:
                 artifacts = [Path(a) for a in sp['artifacts']]
 
+                build_mode = BuildMode[sp.get('build_mode', BuildMode.DEFAULT.name).upper()]
                 subproject = Subproject(name=sp['name'],
                         absolute_path=repo_path / sp['dir'],
-                        artifact_paths=artifacts)
+                        artifact_paths=artifacts,
+                        build_mode=build_mode)
 
                 ret.append(subproject)
         return ret
