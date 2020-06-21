@@ -6,7 +6,8 @@
       "artifacts": [
         "dist/webserver",
         "dist/worker"
-      ]
+      ],
+      "build_type": "python"
     }
   ]
 }
