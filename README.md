@@ -17,6 +17,8 @@ Configurable keys and explanation:
 ```
 [development] 				# environment for dynaconf
 CLONE_PATH="/tmp/"  			# root under which to clone all repos for builds
+LOG_PATH="/tmp/logs"			# path to store logs when executing a build
+LOG_URL="http://ci.labs/logs/{logfile}" # URL that will serve `LOG_PATH` -- should be done by something like nginx
 TELEGRAM_BOT_KEY="set me up!"  		# key for the "Telegram" notifier
 S3_PROFILE='ci'				# profile for S3 in .aws/config, .aws/credentials
 S3_ENDPOINT='http://localhost:9000'  	# endpoint for S3 - useful if you want to specify region or use minio

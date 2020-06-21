@@ -1,5 +1,7 @@
 [development]
-CLONE_PATH="/tmp/"
+LOG_PATH="/tmp/logs"
+LOG_URL="http://ci.labs/logs/{logfile}"
+CLONE_PATH="/tmp/repos"
 TELEGRAM_BOT_KEY="set me up!"
 S3_PROFILE='ci'
 S3_ENDPOINT='http://localhost:9000'
