@@ -60,7 +60,7 @@ def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[Build
                 msg = stream_obj['stream']
                 print(msg.strip())
             elif 'errorDetail' in stream_obj:
-                exit_code = stream_obj['errorDetail']['code']
+                exit_code = stream_obj['errorDetail'].get('code', 'Unknown')
                 exit_msg = stream_obj['errorDetail']['message']
                 raise BuildError(f'{exit_msg}\nExit code: {exit_code}')
             elif 'aux' in stream_obj:
