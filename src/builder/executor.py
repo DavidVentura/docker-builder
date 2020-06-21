@@ -1,4 +1,5 @@
 import enum
+import gzip
 import io
 import logging
 import os
@@ -58,7 +59,7 @@ def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[Build
             # but not for docker-py, as it would break backwards compat
             if 'stream' in stream_obj:
                 msg = stream_obj['stream']
-                print(msg.strip())
+                logger.info(msg.strip())
             elif 'errorDetail' in stream_obj:
                 exit_code = stream_obj['errorDetail'].get('code', 'Unknown')
                 exit_msg = stream_obj['errorDetail']['message']
@@ -92,9 +93,10 @@ def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[Build
             member = _tarfile.getmember(stat['name'])
             resulting_blob = _tarfile.extractfile(member)
         else:
-            logger.info('The artifact was a directory - returning as is')
+            logger.info('The artifact was a directory - returning compressed')
             buf.seek(0, os.SEEK_SET)  # seek_set == beginning of file
-            resulting_blob = buf
+            resulting_blob = gzip.compress(buf.read(), compresslevel=6)
+            artifact_path = f'{artifact_path}.tar.gz'
 
         resulting_artifacts.append(Artifact(data=resulting_blob, key=artifact_path))
 
