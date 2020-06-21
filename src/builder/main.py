@@ -8,7 +8,7 @@ from builder.repo import Repo, Subproject
 
 import json
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)-15s [%(levelname)5s] [%(name)s] %(message)s')
 log = logging.getLogger('Main')
 
 def work(repo, ref):
