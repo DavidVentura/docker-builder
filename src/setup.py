@@ -12,6 +12,7 @@ setup(name='builder',
         entry_points={
             'console_scripts': [
                 'webserver=builder.webserver:start',
+                'worker=builder.worker:start',
                 ],
             },
         install_requires=[

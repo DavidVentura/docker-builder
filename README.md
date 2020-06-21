@@ -7,6 +7,11 @@ On successful build, the configured artifacts are uploaded to the repository's b
 On every build a notification is sent over the configured channels, containing a link to 
 the build's logs.
 
+## Running
+
+There are two main entrypoints: `worker` which will spawn `WORKER_COUNT` workers to execute builds in the background,
+and `webserver` which will listen for `POST`ed data on `0.0.0.0:WEBSERVER_PORT/webhook` and queue builds for the worker.
+
 ## Builder Settings
 
 Settings in this project use dynaconf so you can read the particulars of overrides/secret management 
@@ -27,6 +32,8 @@ DOCKERFILES.MAKE="Dockerfile-python" 	# Dockerfile to use for the 'python' build
 REST_DEPLOYER_SECRET='some secret'	# Secret to send to the `REST` deployer
 REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}' # URL for the `REST` deployer
 WEBSERVER_PORT=8080			# Port to listen on for the webhook payload
+WORKER_QUEUE_NAME='ci'			# Name for the queue on which work will be scheduled
+WORKER_COUNT=2				# Build Worker count (Max amount of parallel builds)
 
   [[development.REPOS]]
   # Array for configured repositories - you have to repeat this section for each repo you want to configure

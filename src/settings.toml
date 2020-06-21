@@ -9,6 +9,9 @@ DOCKERFILES.NPM="Dockerfile-npm"
 DOCKERFILES.PYTHON="Dockerfile-python"
 REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}'
 REST_DEPLOYER_SECRET='some secret'
+WEBSERVER_PORT=8123
+WORKER_QUEUE_NAME='ci'
+WORKER_COUNT=2
 
   [[development.REPOS]]
   Name="Test Repo"

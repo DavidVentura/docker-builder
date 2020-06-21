@@ -1,62 +1,35 @@
-import datetime
 import logging
-import urllib
+import multiprocessing
+import os
+import signal
 
-from pathlib import Path
+import builder  # noqa - preload before forking
 
-from builder import HookData, Url, Ref, settings
-from builder.s3 import UploadError
-from builder.repo import Repo, Subproject
-from builder.executor import BuildError
-from builder.deployment import DeployError
+from functools import partial
+
+from builder import settings
+from builder.logger import setup_logging
+
+from redis import StrictRedis
+from rq import Connection, Worker
 
 logger = logging.getLogger('Worker')
 
-def get_repo_from_ssh_url(url: Url) -> Repo:
-    for r in settings.REPOS:
-        if r['GitUrl'] == url:
-            return Repo.from_config(r)
-    raise ValueError(f'Repo with url {url} is unknown')
+def kill_workers(workers, signum, frame):
+    print('Sigint caught! Passing it down to workers..')
+    for worker in workers:
+        os.kill(worker.pid, signal.SIGINT)
 
-def setup_file_logger(repo: Repo, ref: Ref):
-    now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_fname = f'{now}-{repo.name}-{ref}.log'
-    fh = logging.FileHandler(Path(settings.LOG_PATH) / log_fname)
-    log_format ='%(asctime)-15s [%(levelname)5s] [%(name)s] %(message)s'
-    fh.setFormatter(logging.Formatter(log_format))
-    logging.getLogger().addHandler(fh)
-    return log_fname
+def start():
+    setup_logging()
+    with Connection(connection=StrictRedis()):
+        workers = []
 
-def work(hook_data: HookData):
-    ref = hook_data.ref
-    repo = get_repo_from_ssh_url(hook_data.repo_url)
-    _ref = f'@{ref}' if ref != 'master' else ''
-    log_fname = setup_file_logger(repo, ref)
-    log_url = settings.LOG_URL.format(logfile=urllib.parse.quote(log_fname))
+        for i in range(settings.WORKER_COUNT):
+            p = multiprocessing.Process(target=Worker(settings.WORKER_QUEUE_NAME).work)
+            p.start()
+            workers.append(p)
+        signal.signal(signal.SIGINT, partial(kill_workers, workers))
 
-    logger.info(f'Starting build for {repo.name}')
-    repo.notify(f'Starting build for {repo.name}{_ref}, you can find the logs at {log_url}')
-    if len(hook_data.commits):
-        logger.info(f'Commits in this build:')
-        for commit in hook_data.commits:
-            logger.info(commit)
-
-    try:
-        repo_dst = repo.fetch_at(ref)
-        subprojects = Subproject.parse_from_config(repo_dst / 'build.json')
-        for subproject in subprojects:
-            artifacts = subproject.build()
-            for artifact in artifacts:
-                repo.upload_artifact(ref, subproject, artifact)
-        repo.trigger_deployment(ref)
-    except BuildError as e:
-        repo.notify(f'Failure building {repo.name}: {e}')
-        return
-    except UploadError as e:
-        repo.notify(f'Failure uploading {repo.name}: {e}')
-        return
-    except DeployError as e:
-        repo.notify(f'Failure deploying {repo.name}: {e}')
-        return
-
-    repo.notify(f'Building {repo.name} succeeded')
+        for w in workers:
+            p.join()
