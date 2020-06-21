@@ -23,6 +23,7 @@ setup(name='builder',
             'flask==1.1.1',
             'gitpython==3.1.3',
             'jsonschema==3.2.0',
+            'pyinstaller==3.6',
             'redis==3.5.3',
             'requests==2.24.0',
             'rq==1.4.2',
@@ -30,7 +31,4 @@ setup(name='builder',
             'waitress==1.4.3',
             'wheel',
             ],
-        extras_require={
-            'build':
-            ['shiv==0.1.2']
-            })
+        )

@@ -1,0 +1,13 @@
+{
+  "subprojects": [
+    {
+      "name": "Builder",
+      "dir": "src",
+      "artifacts": [
+        "dist/webserver",
+        "dist/worker"
+      ]
+    }
+  ]
+}
+
