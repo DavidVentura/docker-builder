@@ -24,6 +24,7 @@ DOCKERFILES.NPM="Dockerfile-npm" 	# Dockerfile to use for the 'npm' build profil
 DOCKERFILES.MAKE="Dockerfile-python" 	# Dockerfile to use for the 'python' build profile
 REST_DEPLOYER_SECRET='some secret'	# Secret to send to the `REST` deployer
 REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}' # URL for the `REST` deployer
+WEBSERVER_PORT=8080			# Port to listen on for the webhook payload
 
   [[development.REPOS]]
   # Array for configured repositories - you have to repeat this section for each repo you want to configure

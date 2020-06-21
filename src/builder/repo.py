@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Repo:
     name: str
-    repo: 'Url'
+    repo_url: 'Url'
     bucket: str
     notifier: 'Notifier'
     deployer: 'Deployer'
@@ -42,7 +42,7 @@ class Repo:
                 raise NotImplementedError('Only REST Deployer has been implemented')
 
         return Repo(name=config['Name'],
-                repo=config['GitUrl'],
+                repo_url=config['GitUrl'],
                 bucket=config['Bucket'],
                 notifier=notifier,
                 deployer=deployer)
@@ -54,7 +54,7 @@ class Repo:
         # FIXME: acquire lock in enter/exit? repo-ref should be uniq at any given time
         path = Path(settings.CLONE_PATH) / self.name / ref
         shutil.rmtree(path)
-        r = git.Repo.clone_from(self.repo, path)
+        r = git.Repo.clone_from(self.repo_url, path)
         r.head.reference = ref
         return path
 

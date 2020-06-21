@@ -1,47 +1,47 @@
-from builder import Url
-from builder.schemas import WEBHOOK_SCHEMA
-
-from typing import List, NamedTuple
-from typing_extensions import Literal
-
-import enum
-import datetime
-import json
+import logging
 
 import jsonschema
+import waitress
 
-def hook_endpoint():
+from typing import List, NamedTuple
+
+from builder import Url, HookData, Commit
+from builder.schemas import WEBHOOK_SCHEMA
+
+from flask_api import FlaskAPI, status
+from redis import StrictRedis
+from rq import Queue as Rqueue
+
+app = FlaskAPI(__name__)
+q = Rqueue(connection=StrictRedis())
+logger = logging.getLogger('Hook')
+
+
+def _parse_hook(data):
+    ref_type = RefType[data.get('ref_type', 'push')]
+    commits = [Commit(c['timestamp'], c['id'], c['message']) for c in data.get('commits', [])]
+    hd = HookData(ref_type=ref_type,
+            commits=commits,
+            ref=data['ref'],
+            repo_url=data["repository"]["ssh_url"])
+    return hd
+
+
+@app.route("/webhook", methods=['POST'])
+def deploy():
     data = request.json
-    work(repo, ref)
+    if data is None:
+        return {}, status.HTTP_400_BAD_REQUEST
+
+    try:
+        jsonschema.validate(data, schema=WEBHOOK_SCHEMA)
+    except Exception as e:
+        return {'error': str(e)}, status.HTTP_400_BAD_REQUEST
+
+    hook_data = _parse_hook(data)
+    job = q.enqueue(work, hook_data)
+    return {}, status.HTTP_202_ACCEPTED
 
 
-class RefType(enum.Enum):
-    push = enum.auto()
-    tag = enum.auto()
-    branch = enum.auto()
-
-class Commit(NamedTuple):
-    timestamp: datetime.datetime
-    ref: str
-    msg: str
-
-class HookData(NamedTuple):
-    ref_type: RefType
-    commits: List[Commit]
-    ref: str
-    repo_url: Url
-
-def parse_hook(data):
-    jsonschema.validate(data, schema=WEBHOOK_SCHEMA)
-
-    ref_type = data.get('ref_type', 'push')
-    if ref_type != 'push':
-        print(f'This was not just a push, was a {data["ref_type"]}')
-
-    if ref_type == 'push' and 'commits' not in data:
-        raise ValueError('Got a PUSH event with no commits!')
-
-    print(f'Ref: {data["ref"]}')
-    for commit in data.get('commits', []):
-       print(f'{commit["timestamp"]} {commit["id"]}: {commit["message"]}')
-    print(f'{data["repository"]["ssh_url"]}')
+def serve():
+    pass
