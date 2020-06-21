@@ -14,7 +14,7 @@ class DeployError(Exception):
 
 
 class Deployer:
-    def deploy(self):
+    def deploy(self, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -37,5 +37,5 @@ class RESTDeployer(Deployer, NamedTuple):
 
 
 class NullDeployer(Deployer, NamedTuple):
-    def deploy(self):
+    def deploy(self, *args, **kwargs):
         logger.info('NullDeployer asked to deploy... doing nothing')

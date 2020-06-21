@@ -22,6 +22,7 @@ def get_repo_from_ssh_url(url: Url) -> Repo:
 def setup_file_logger(repo: Repo, ref: Ref):
     now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_fname = f'{now}-{repo.name}-{ref}.log'
+    Path(settings.LOG_PATH).mkdir(parents=True, exist_ok=True)
     fh = logging.FileHandler(Path(settings.LOG_PATH) / log_fname)
     log_format ='%(asctime)-15s [%(levelname)5s] [%(name)s] %(message)s'
     fh.setFormatter(logging.Formatter(log_format))
@@ -37,6 +38,7 @@ def build_on_hook(hook_data: HookData):
     log_url = settings.LOG_URL.format(logfile=urllib.parse.quote(log_fname))
 
     logger.info(f'Starting build for {repo.name}')
+    ensure_buckets([repo.bucket])
     repo.notify(f'Starting build for {repo.name}{_ref}, you can find the logs at {log_url}')
     if len(hook_data.commits):
         logger.info(f'Commits in this build:')

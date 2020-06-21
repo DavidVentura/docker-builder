@@ -1,4 +1,5 @@
 import logging
+import sys
 
 import jsonschema
 import waitress
@@ -52,3 +53,6 @@ def deploy():
 def start():
     setup_logging()
     waitress.serve(app, port=settings.WEBSERVER_PORT)
+
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    start()  # pyinstaller

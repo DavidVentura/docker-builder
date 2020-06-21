@@ -80,6 +80,8 @@ def run_build(path: Path, artifact_paths: List[Path], build_mode: Optional[Build
         except docker.errors.NotFound as e:
             raise BuildError(e.explanation)
 
+        logger.info(f'Artifact stat: {stat}')
+
         buf = io.BytesIO()
         for chunk in tarball:
             buf.write(chunk)

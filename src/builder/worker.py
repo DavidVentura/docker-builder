@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 import os
 import signal
+import sys
 
 import builder  # noqa - preload before forking
 
@@ -33,3 +34,6 @@ def start():
 
         for w in workers:
             p.join()
+
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    start()  # pyinstaller
