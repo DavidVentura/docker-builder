@@ -21,7 +21,7 @@ TELEGRAM_BOT_KEY="set me up!"  		# key for the "Telegram" notifier
 S3_PROFILE='ci'				# profile for S3 in .aws/config, .aws/credentials
 S3_ENDPOINT='http://localhost:9000'  	# endpoint for S3 - useful if you want to specify region or use minio
 DOCKERFILES.NPM="Dockerfile-npm" 	# Dockerfile to use for the 'npm' build profile
-DOCKERFILES.MAKE="Dockerfile-make" 	# Dockerfile to use for the 'make' build profile
+DOCKERFILES.MAKE="Dockerfile-python" 	# Dockerfile to use for the 'python' build profile
 REST_DEPLOYER_SECRET='some secret'	# Secret to send to the `REST` deployer
 REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}' # URL for the `REST` deployer
 
@@ -70,20 +70,20 @@ For each of the subprojects, the build matching `build_mode` will be executed in
 
 The builds are only executing `docker build` with different docker files based on the `build_mode` specified.  
 
-Example `make` and `npm` `Dockerfile`s are provided in the repo. The default is `npm`.
+Example `python` and `npm` `Dockerfile`s are provided in the repo. The default is `npm`.
 
 
 ### npm
 
-See [Dockerfile-npm](Dockerfile-npm) for full source.
+See [Dockerfile-npm](src/Dockerfile-npm) for full source.
 
-Executes `npm build`
+Adds `package.json` and `package-lock.json` to the build context and runs `npm install`, then executes `npm build`.
 
-### make
+### python
 
-See [Dockerfile-make](Dockerfile-make) for full source.
+See [Dockerfile-python](src/Dockerfile-python) for full source.
 
-Executes `make all`
+Adds `setup.py` to the build context and runs `pip install` (in a python3.8 environment), then executes `make all`.
 
 ### Custom
 
