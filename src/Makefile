@@ -1,6 +1,7 @@
 .PHONY: all
 
 all:
-	. venv/bin/activate && pip install -rrequirements.txt && pip install .
-	. venv/bin/activate && pyinstaller -F --hidden-import=flask_api.parsers --hidden-import=flask_api.renderers builder/webserver.py
-	. venv/bin/activate && pyinstaller -F builder/worker.py
+	mkdir -p dist
+	venv/bin/pip install -rrequirements.txt && venv/bin/pip install .
+	venv/bin/shiv -c webserver -o dist/webserver --site-packages venv/lib/python3.*/site-packages --compile-pyc
+	venv/bin/shiv -c worker -o dist/worker --site-packages venv/lib/python3.*/site-packages --compile-pyc
