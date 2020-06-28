@@ -136,3 +136,4 @@ If you use feature branches or release tags, those will be stored permanently.
 
 * Sending SIGHUP to the `worker` process will request the actual workers to do a warm-shutdown (finish what they are
   doing, then exit), followed by the `worker` process re-starting itself.
+* Most likely you want `KillMode=mixed` (see [here](https://www.freedesktop.org/software/systemd/man/systemd.kill.html) on your systemd unit -- otherwise the workers will get sent `SIGTERM` twice -- once by the `worker` parent process passing it down to its child processes and once by systemd sending it to all processes in the pgroup.
