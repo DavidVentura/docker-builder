@@ -23,7 +23,7 @@ def kill_workers(workers, signum, frame):
         for worker in workers:
             os.kill(worker.pid, signal.SIGINT)
     logger.info('Re-starting myself')
-    os.execv(sys.args[0], sys.args)
+    os.execv(sys.argv[0], sys.argv)
 
 def start():
     setup_logging()
