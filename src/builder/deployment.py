@@ -33,6 +33,8 @@ class RESTDeployer(Deployer, NamedTuple):
             logger.exception(e)
             raise DeployError(e)
 
+        for line in r.text:
+            logger.info(line.strip())
         logger.info(f'Deploying {repo_name}@{ref} successful!')
 
 
