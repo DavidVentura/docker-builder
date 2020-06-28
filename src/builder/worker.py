@@ -17,7 +17,7 @@ from rq import Connection, Worker
 logger = logging.getLogger('Worker')
 
 def kill_workers(workers, signum, frame):
-    print('Sigint caught! Passing it down to workers..')
+    logger.info('Signal %s caught! Passing it down to workers..', signum)
     for worker in workers:
         os.kill(worker.pid, signal.SIGINT)
 
@@ -31,6 +31,7 @@ def start():
             p.start()
             workers.append(p)
         signal.signal(signal.SIGINT, partial(kill_workers, workers))
+        signal.signal(signal.SIGTERM, partial(kill_workers, workers))
 
         for w in workers:
             p.join()
