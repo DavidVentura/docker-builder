@@ -76,7 +76,7 @@ For each of the subprojects, the build matching `build_mode` will be executed in
 
 ```
 
-## Bulid Modes
+## Build Modes
 
 The builds are only executing `docker build` with different docker files based on the `build_mode` specified.  
 

@@ -23,11 +23,11 @@ def ensure_buckets(buckets: List[str]):
     existing_buckets = [b['Name'] for b in s3.list_buckets()['Buckets']]
     for wanted_bucket in buckets:
         if wanted_bucket not in existing_buckets:
-            log.info('Creating bucket %s', wanted_bucket)
+            log.info('Creating bucket <%s>', wanted_bucket)
             s3.create_bucket(Bucket=wanted_bucket)
-            log.info('Created bucket %s', wanted_bucket)
+            log.info('Created bucket <%s>', wanted_bucket)
         else:
-            log.info('Bucket %s already exists -- no need to create it', wanted_bucket)
+            log.info('Bucket <%s> already exists -- no need to create it', wanted_bucket)
 
 def upload_blob(blob: bytes, bucket: str, key: str):
     s3 = _client()
