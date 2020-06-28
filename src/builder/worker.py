@@ -30,12 +30,14 @@ def start():
     with Connection(connection=StrictRedis()):
         workers = []
 
+        signal.signal(signal.SIGHUP, partial(kill_workers, workers))
+        signal.signal(signal.SIGINT, partial(kill_workers, workers))
+        signal.signal(signal.SIGTERM, partial(kill_workers, workers))
+
         for i in range(settings.WORKER_COUNT):
             p = multiprocessing.Process(target=Worker(settings.WORKER_QUEUE_NAME).work)
             p.start()
             workers.append(p)
-        signal.signal(signal.SIGINT, partial(kill_workers, workers))
-        signal.signal(signal.SIGTERM, partial(kill_workers, workers))
 
         for w in workers:
             p.join()
