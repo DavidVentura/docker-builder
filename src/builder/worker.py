@@ -22,6 +22,8 @@ def kill_workers(workers, signum, frame):
         logger.info('Sending SIGINT to workers..')
         for worker in workers:
             os.kill(worker.pid, signal.SIGINT)
+    logger.info('Exiting')
+    sys.exit(0)
 
 def start():
     setup_logging()
