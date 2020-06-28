@@ -12,7 +12,6 @@ REST_DEPLOYER_SECRET='some secret'
 WEBSERVER_PORT=8123
 WORKER_QUEUE_NAME='ci'
 WORKER_COUNT=2
-KILL_WORKERS_ON_SIGNAL=false
 
   [[development.REPOS]]
   Name="Test Repo"

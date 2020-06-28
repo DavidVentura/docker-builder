@@ -34,9 +34,6 @@ REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}' # URL for the
 WEBSERVER_PORT=8080			# Port to listen on for the webhook payload
 WORKER_QUEUE_NAME='ci'			# Name for the queue on which work will be scheduled
 WORKER_COUNT=2				# Build Worker count (Max amount of parallel builds)
-KILL_WORKERS_ON_SIGNAL=false		# Send SIGINT to workers when receiving SIGINT/SIGTERM this is useful if
-your daemon manager (systemd, supervisord, initd) does not send signals to the entire process group (only sends signals
-to the parent PID).
 
   [[development.REPOS]]
   # Array for configured repositories - you have to repeat this section for each repo you want to configure
@@ -134,3 +131,8 @@ If you use feature branches or release tags, those will be stored permanently.
 * [Kitchen](https://github.com/TatianaInama/kitchen)
 * [Voices of Merseyside](https://github.com/TatianaInama/voices-of-merseyside)
 * [Critter Crossing](https://github.com/TatianaInama/critter-crossing)
+
+## Operational stuff
+
+* Sending SIGHUP to the `worker` process will request the actual workers to do a warm-shutdown (finish what they are
+  doing, then exit), followed by the `worker` process re-starting itself.
