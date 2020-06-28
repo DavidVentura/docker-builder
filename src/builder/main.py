@@ -73,6 +73,12 @@ def build_on_hook(hook_data: HookData):
         logger.error(e)
         repo.notify(error)
         return
+    except Exception as e:
+        error = f'Unhandled Failure while working on {repo.name}'
+        logger.error(error)
+        logger.error(e)
+        repo.notify(error)
+        return
 
     logger.info(f'Building {repo.name} succeeded')
     repo.notify(f'Building {repo.name} succeeded')
