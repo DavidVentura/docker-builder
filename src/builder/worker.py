@@ -17,9 +17,11 @@ from rq import Connection, Worker
 logger = logging.getLogger('Worker')
 
 def kill_workers(workers, signum, frame):
-    logger.info('Signal %s caught! Passing it down to workers..', signum)
-    for worker in workers:
-        os.kill(worker.pid, signal.SIGINT)
+    logger.info('Signal %s caught!', signum)
+    if settings.KILL_WORKERS_ON_SIGNAL:
+        logger.info('Sending SIGINT to workers..')
+        for worker in workers:
+            os.kill(worker.pid, signal.SIGINT)
 
 def start():
     setup_logging()

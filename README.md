@@ -34,6 +34,9 @@ REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}' # URL for the
 WEBSERVER_PORT=8080			# Port to listen on for the webhook payload
 WORKER_QUEUE_NAME='ci'			# Name for the queue on which work will be scheduled
 WORKER_COUNT=2				# Build Worker count (Max amount of parallel builds)
+KILL_WORKERS_ON_SIGNAL=false		# Send SIGINT to workers when receiving SIGINT/SIGTERM this is useful if
+your daemon manager (systemd, supervisord, initd) does not send signals to the entire process group (only sends signals
+to the parent PID).
 
   [[development.REPOS]]
   # Array for configured repositories - you have to repeat this section for each repo you want to configure
