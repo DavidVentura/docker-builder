@@ -124,3 +124,10 @@ The upload format is `{Bucket}/{subproject}/{ref}/{artifact}` which means that i
 to trigger on push, and you only push directly to `master`, you'll only ever have **one** artifact - the latest master.
 
 If you use feature branches or release tags, those will be stored permanently.
+
+## What projects does it build?
+
+* Itself
+* [Kitchen](https://github.com/TatianaInama/kitchen)
+* [Voices of Merseyside](https://github.com/TatianaInama/voices-of-merseyside)
+* [Critter Crossing](https://github.com/TatianaInama/critter-crossing)
