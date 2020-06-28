@@ -22,8 +22,8 @@ def kill_workers(workers, signum, frame):
         logger.info('Sending SIGINT to workers..')
         for worker in workers:
             os.kill(worker.pid, signal.SIGINT)
-    logger.info('Exiting')
-    sys.exit(0)
+    logger.info('Re-starting myself')
+    os.execv(sys.args[0], sys.args)
 
 def start():
     setup_logging()
@@ -31,9 +31,8 @@ def start():
         workers = []
 
         signal.signal(signal.SIGHUP, partial(kill_workers, workers))
-        signal.signal(signal.SIGINT, partial(kill_workers, workers))
-        signal.signal(signal.SIGTERM, partial(kill_workers, workers))
 
+        logger.info('Starting workers on queue %s', settings.WORKER_QUEUE_NAME)
         for i in range(settings.WORKER_COUNT):
             p = multiprocessing.Process(target=Worker(settings.WORKER_QUEUE_NAME).work)
             p.start()
@@ -41,6 +40,3 @@ def start():
 
         for w in workers:
             p.join()
-
-if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-    start()  # pyinstaller
