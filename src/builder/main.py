@@ -9,6 +9,7 @@ from builder import settings, HookData, RefType, Ref, Url
 from builder.deployment import DeployError
 from builder.executor import BuildError
 from builder.repo import Repo, Subproject
+from builder.redis import job_conn
 from builder.s3 import UploadError, ensure_buckets
 
 logger = logging.getLogger('Main')
@@ -33,9 +34,15 @@ def setup_file_logger(repo: Repo, ref: Ref):
 def build_on_hook(hook_data: HookData):
     ref = hook_data.ref
     repo = get_repo_from_ssh_url(hook_data.repo_url)
-    _ref = f'@{ref}' if ref != 'master' else ''
     log_fname = setup_file_logger(repo, ref)
     log_url = settings.LOG_URL.format(logfile=urllib.parse.quote(log_fname))
+
+    logger.info(f'Acquiring lock for {repo.name}')
+    with job_conn.lock(repo.name):
+        build(ref, repo, log_url)
+
+def build(ref, repo, log_url):
+    _ref = f'@{ref}' if ref != 'master' else ''
 
     logger.info(f'Starting build for {repo.name}')
     ensure_buckets([repo.bucket])

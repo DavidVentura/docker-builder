@@ -10,16 +10,13 @@ from builder import Url, HookData, Commit, settings, RefType
 from builder.logger import setup_logging
 from builder.schemas import WEBHOOK_SCHEMA
 from builder.main import build_on_hook
+from builder.redis import q
 
 from flask import url_for, request
 from flask_api import FlaskAPI, status
-from redis import StrictRedis
-from rq import Queue
 
 app = FlaskAPI(__name__)
-q = Queue(settings.WORKER_QUEUE_NAME, connection=StrictRedis())
 logger = logging.getLogger('Hook')
-
 
 def _parse_hook(data):
     ref_type = RefType[data.get('ref_type', 'push')]

@@ -9,9 +9,9 @@ import builder  # noqa - preload before forking
 from functools import partial
 
 from builder import settings
+from builder.redis import job_conn
 from builder.logger import setup_logging
 
-from redis import StrictRedis
 from rq import Connection, Worker
 
 logger = logging.getLogger('Worker')
@@ -26,7 +26,7 @@ def kill_workers_and_myself(workers, signum, frame):
 
 def start():
     setup_logging()
-    with Connection(connection=StrictRedis()):
+    with Connection(connection=job_conn):
         workers = []
 
         signal.signal(signal.SIGHUP, partial(kill_workers_and_myself, workers))
