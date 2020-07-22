@@ -39,9 +39,9 @@ def build_on_hook(hook_data: HookData):
 
     logger.info(f'Acquiring lock for {repo.name}')
     with job_conn.lock(repo.name):
-        build(ref, repo, log_url)
+        build(hook_data, ref, repo, log_url)
 
-def build(ref, repo, log_url):
+def build(hook_data: HookData, ref: Ref, repo: Repo, log_url: Url):
     _ref = f'@{ref}' if ref != 'master' else ''
 
     logger.info(f'Starting build for {repo.name}')
