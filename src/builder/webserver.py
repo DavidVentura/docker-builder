@@ -43,7 +43,7 @@ def deploy():
 
     hook_data = _parse_hook(data)
     logger.info(f'enqueueing {hook_data}')
-    job = q.enqueue(build_on_hook, hook_data)
+    job = q.enqueue(build_on_hook, hook_data, job_timeout=settings.JOB_TIMEOUT)
     return {}, status.HTTP_202_ACCEPTED
 
 
