@@ -21,6 +21,7 @@ logger = logging.getLogger('Executor')
 class BuildMode(enum.Enum):
     NPM = 'npm'
     PYTHON = 'python'
+    YARN = 'yarn'
     CUSTOM = 'custom'
     DEFAULT = 'npm'
 

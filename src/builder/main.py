@@ -5,7 +5,7 @@ import urllib
 
 from pathlib import Path
 
-from builder import settings, HookData, RefType, Ref, Url
+from builder import settings, HookData, Ref, Url
 from builder.deployment import DeployError
 from builder.executor import BuildError
 from builder.repo import Repo, Subproject
@@ -83,7 +83,7 @@ def build(hook_data: HookData, ref: Ref, repo: Repo, log_url: Url):
     except Exception as e:
         error = f'Unhandled Failure while working on {repo.name}'
         logger.error(error)
-        logger.error(e)
+        logger.exception(e)
         repo.notify(error)
         return
 

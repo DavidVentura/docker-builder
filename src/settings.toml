@@ -7,6 +7,7 @@ S3_PROFILE='ci'
 S3_ENDPOINT='http://localhost:9000'
 DOCKERFILES.NPM="Dockerfile-npm"
 DOCKERFILES.PYTHON="Dockerfile-python"
+DOCKERFILES.YARN="Dockerfile-yarn"
 REST_DEPLOYER_URL='http://localhost:8080/sync/deploy/{repo}/{ref}'
 REST_DEPLOYER_SECRET='some secret'
 WEBSERVER_PORT=8123
