@@ -32,3 +32,13 @@ def ensure_buckets(buckets: List[str]):
 def upload_blob(blob: bytes, bucket: str, key: str):
     s3 = _client()
     s3.put_object(Body=blob, Bucket=bucket, Key=key)
+
+def download_blob(bucket: str, key: str) -> bytes:
+    s3 = _client()
+    obj = s3.get_object(Bucket=bucket, Key=key)
+    return obj['Body'].read()
+
+def list_bucket_path(bucket: str, prefix: str) -> List[str]:
+    s3 = _client()
+    resp = s3.list_objects(Bucket=bucket, Prefix=prefix)
+    return [item['Key'] for item in resp.get('Contents', [])]

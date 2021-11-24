@@ -9,7 +9,7 @@ import builder  # noqa - preload before forking
 from functools import partial
 
 from builder import settings
-from builder.redis import job_conn
+from builder.myredis import job_conn
 from builder.logger import setup_logging
 
 from rq import Connection, Worker

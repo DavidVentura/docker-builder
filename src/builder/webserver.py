@@ -10,7 +10,7 @@ from builder import Url, HookData, Commit, settings, RefType
 from builder.logger import setup_logging
 from builder.schemas import WEBHOOK_SCHEMA
 from builder.main import build_on_hook
-from builder.redis import q
+from builder.myredis import q
 
 from flask import url_for, request
 from flask_api import FlaskAPI, status

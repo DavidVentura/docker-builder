@@ -12,7 +12,7 @@ class Notifier:
     def __init__(self):
         raise NotImplementedError
 
-    def notify(self):
+    def notify(self, msg: str):
         raise NotImplementedError
 
 @dataclass

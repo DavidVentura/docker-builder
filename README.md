@@ -132,6 +132,22 @@ If you use feature branches or release tags, those will be stored permanently.
 * [Voices of Merseyside](https://github.com/TatianaInama/voices-of-merseyside)
 * [Critter Crossing](https://github.com/TatianaInama/critter-crossing)
 
+## Secrets
+
+You can populate secrets by placing files in `{Bucket}/{subproject}/secrets/`. The relative path will be copied to the
+root of the repo, so as an example:
+
+```
+{Bucket}/{subproject}/secrets/.env
+```
+
+Will be copied as
+```
+.env
+```
+
+on the root of the repo checkout (and docker context)
+
 ## Operational stuff
 
 * Sending SIGHUP to the `worker` process will request the actual workers to do a warm-shutdown (finish what they are

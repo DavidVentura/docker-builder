@@ -6,7 +6,7 @@ from builder import Ref, Url, settings
 from builder.deployment import Deployer, RESTDeployer, NullDeployer
 from builder.executor import Artifact, BuildMode, run_build
 from builder.notifications import Telegram, Notifier, NullNotifier
-from builder.s3 import upload_blob
+from builder.s3 import upload_blob, download_blob, list_bucket_path
 
 from dataclasses import dataclass
 from typing import List, Optional
@@ -23,6 +23,7 @@ class Repo:
     bucket: str
     notifier: 'Notifier'
     deployer: 'Deployer'
+    local_path: Optional[Path] = None
 
     @staticmethod
     def from_config(config):
@@ -57,9 +58,10 @@ class Repo:
         path.mkdir(parents=True, exist_ok=True)
         r = git.Repo.clone_from(self.repo_url, path)
         r.head.reference = ref
+        self.local_path = path
         return path
 
-    def notify(self, msg):
+    def notify(self, msg) -> None:
         self.notifier.notify(msg)
 
     def upload_artifact(self, ref: str, subproject: 'Subproject', artifact: Artifact):
@@ -67,6 +69,18 @@ class Repo:
         key = f'{subproject.name}/{ref}/{artifact.key}'
         logger.info(f"Uploading {artifact.key} to s3://{self.bucket}/{key}")
         upload_blob(blob=artifact.data, bucket=self.bucket, key=key)
+
+    def populate_secrets(self, subproject: 'Subproject'):
+        logger.info('Populating secrets for %s', subproject.name)
+        secrets = list_bucket_path(self.bucket, f'{subproject.name}/secrets/')
+        for key in secrets:
+            logger.info('Populating secret %s for %s', key, subproject.name)
+            blob = download_blob(bucket=self.bucket, key=key)
+            relative_secret_path = key[len(f'{subproject.name}/secrets/'):]
+            file_path = self.local_path / relative_secret_path
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            with file_path.open('wb') as fd:
+                fd.write(blob)
 
 @dataclass
 class Subproject:

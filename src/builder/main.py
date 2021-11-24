@@ -9,7 +9,7 @@ from builder import settings, HookData, Ref, Url
 from builder.deployment import DeployError
 from builder.executor import BuildError
 from builder.repo import Repo, Subproject
-from builder.redis import job_conn
+from builder.myredis import job_conn
 from builder.s3 import UploadError, ensure_buckets
 
 logger = logging.getLogger('Main')
@@ -47,6 +47,7 @@ def build(hook_data: HookData, ref: Ref, repo: Repo, log_url: Url):
     logger.info(f'Starting build for {repo.name}')
     ensure_buckets([repo.bucket])
     repo.notify(f'Starting build for {repo.name}{_ref}, you can find the logs at {log_url}')
+
     if len(hook_data.commits):
         logger.info(f'Commits in this build:')
         for commit in hook_data.commits:
@@ -58,6 +59,7 @@ def build(hook_data: HookData, ref: Ref, repo: Repo, log_url: Url):
         subprojects = Subproject.parse_from_config(repo_dst / 'build.json')
         for subproject in subprojects:
             logger.info(f'Found subproject: {subproject}')
+            repo.populate_secrets(subproject)
             artifacts = subproject.build()
             for artifact in artifacts:
                 repo.upload_artifact(ref, subproject, artifact)

@@ -2,10 +2,10 @@ import logging
 
 import requests
 
-from typing import NamedTuple
-
 from builder import Url
 from builder import settings
+
+from dataclasses import dataclass
 
 logger = logging.getLogger('Deployment')
 
@@ -18,8 +18,9 @@ class Deployer:
         raise NotImplementedError
 
 
-class RESTDeployer(Deployer, NamedTuple):
-    url: Url
+@dataclass
+class RESTDeployer(Deployer):
+    url: str # Url
 
     def deploy(self, repo_name: str, ref: str):
         logger.info(f'Deploying {repo_name}@{ref}')
@@ -38,6 +39,7 @@ class RESTDeployer(Deployer, NamedTuple):
         logger.info(f'Deploying {repo_name}@{ref} successful!')
 
 
-class NullDeployer(Deployer, NamedTuple):
+@dataclass
+class NullDeployer(Deployer):
     def deploy(self, *args, **kwargs):
         logger.info('NullDeployer asked to deploy... doing nothing')
