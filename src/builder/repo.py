@@ -57,7 +57,7 @@ class Repo:
         shutil.rmtree(path, ignore_errors=True)
         path.mkdir(parents=True, exist_ok=True)
         r = git.Repo.clone_from(self.repo_url, path)
-        r.checkout(ref)
+        r.git.checkout(ref)
         self.local_path = path
         return path
 
