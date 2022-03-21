@@ -10,5 +10,5 @@ requests==2.24.0
 rq==1.4.2
 shiv==0.0.48
 typing-extensions==3.7.4.2
-waitress==1.4.3
+waitress==2.1.1
 wheel
